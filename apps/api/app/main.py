@@ -1,19 +1,23 @@
 from fastapi import FastAPI
+from sqlalchemy import text
 
-app = FastAPI(
-    title="Atlas API",
-    version="0.1.0"
-)
+from app.db.session import engine
+from app.api.auth import router as auth_router
+
+app = FastAPI(title="Atlas API")
+app.include_router(auth_router)
+
 
 @app.get("/")
 def root():
-    return {
-        "message": "Welcome to Atlas API 🚀",
-        "status": "online"
-    }
+    return {"message": "Atlas API 🚀"}
+
 
 @app.get("/health")
 def health():
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
     return {
-        "status": "healthy"
+        "database": "Connected ✅",
+        "api": "Running 🚀",
     }
